@@ -1,7 +1,12 @@
 # This file is app/controllers/movies_controller.rb
 class MoviesController < ApplicationController
   def index
-    @movies = Movie.all
+    sort_by = params[:sort_by]
+    if sort_by == "release_date"||sort_by == "title"
+        @movies = Movie.order(sort_by)
+    else
+        @movies = Movie.all
+    end
   end
 
   def show
