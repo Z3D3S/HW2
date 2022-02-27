@@ -1,17 +1,32 @@
 # This file is app/controllers/movies_controller.rb
 class MoviesController < ApplicationController
   def index
-    sort_by = params[:sort_by]
-    if sort_by
-      if sort_by == "title"
-        @title_header = "hilite"
-      else
-        @release_date_header = "hilite"
-      end
-        @movies = Movie.order(sort_by)
-    else
-        @movies = Movie.all
+    @all_ratings = Movie.all_ratings
+    if session[:ratings] != params[:ratings] && params[:ratings] != nil
+      session[:ratings] = params[:ratings]
     end
+    if session[:sort_by] != params[:sort_by] && params[:sort_by] != nil
+      session[:sort_by] = params[:sort_by]
+    end
+    if params[:ratings] == nil && params[:sort] == nil && session[:ratings] != nil
+      redirect_to movies_path(:sort_by => session[:sort_by], :ratings => session[:ratings])
+    elsif params[:ratings] == nil && session[:ratings] != nil
+      redirect_to movies_path(:sort_by => params[:sort_by], :ratings => session[:ratings])
+    elsif params[:sort_by] == nil && session[:sort_by] != nil
+      redirect_to movies_path(:sort_by => session[:sort_by], :ratings => params[:ratings])
+    end
+    ratings = params[:ratings]
+    if ratings
+      a = ratings.keys
+    else
+      a = @all_ratings
+    end
+    if params[:sort_by] == "title"
+      @title_header = "hilite"
+    elsif params[:sort_by] == "release_date"
+      @release_date_header = "hilite"
+    end
+    @movies = Movie.order(params[:sort_by]).where(:rating => a)
   end
 
   def show
